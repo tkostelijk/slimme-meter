@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.Devices.Enumeration;
 using Windows.Devices.SerialCommunication;
 using Windows.Storage.Streams;
@@ -81,7 +82,9 @@ namespace SerialSample
                 return;
             }
 
-            DeviceInformation entry = (DeviceInformation)selection[0];         
+            DeviceInformation entry = (DeviceInformation)selection[0];
+
+            // \\?\FTDIBUS#VID_0403+PID_6001+P11A5YWMA#0000#{86e0d1e0-8089-11d09ce4-08003e301f73}       
 
             try
             {                
@@ -91,24 +94,27 @@ namespace SerialSample
                 comPortInput.IsEnabled = false;
 
                 // Configure serial settings
-                serialPort.WriteTimeout = TimeSpan.FromMilliseconds(1000);
-                serialPort.ReadTimeout = TimeSpan.FromMilliseconds(1000);                
-                serialPort.BaudRate = 9600;
+                serialPort.WriteTimeout = TimeSpan.FromMilliseconds(500);
+                serialPort.ReadTimeout = TimeSpan.FromMilliseconds(500);                
+                serialPort.BaudRate = 115200;
                 serialPort.Parity = SerialParity.None;
                 serialPort.StopBits = SerialStopBitCount.One;
                 serialPort.DataBits = 8;
-                serialPort.Handshake = SerialHandshake.None;
+                serialPort.Handshake = SerialHandshake.XOnXOff;
 
                 // Display configured settings
-                status.Text = "Serial port configured successfully: ";
+                status.Text = "Serial port ";
+                status.Text += entry.Id;
+                status.Text += " configured successfully: ";
                 status.Text += serialPort.BaudRate + "-";
                 status.Text += serialPort.DataBits + "-";
                 status.Text += serialPort.Parity.ToString() + "-";
-                status.Text += serialPort.StopBits;
+                status.Text += serialPort.StopBits + "-";
+                status.Text += serialPort.Handshake; // Maybe .TosTring() is needed.
 
                 // Set the RcvdText field to invoke the TextChanged callback
                 // The callback launches an async Read task to wait for data
-                rcvdText.Text = "Waiting for data...";
+                //status.Text = "Waiting for data...";
 
                 // Create cancellation token object to close I/O operations when closing the device
                 ReadCancellationTokenSource = new CancellationTokenSource();
@@ -245,7 +251,8 @@ namespace SerialSample
         {
             Task<UInt32> loadAsyncTask;
 
-            uint ReadBufferLength = 1024;
+            // uint ReadBufferLength = 589;
+            uint ReadBufferLength = 600;
 
             // If task cancellation was requested, comply
             cancellationToken.ThrowIfCancellationRequested();
@@ -253,15 +260,22 @@ namespace SerialSample
             // Set InputStreamOptions to complete the asynchronous read operation when one or more bytes is available
             dataReaderObject.InputStreamOptions = InputStreamOptions.Partial;
 
+
             // Create a task object to wait for data on the serialPort.InputStream
             loadAsyncTask = dataReaderObject.LoadAsync(ReadBufferLength).AsTask(cancellationToken);
+
 
             // Launch the task and wait
             UInt32 bytesRead = await loadAsyncTask;
             if (bytesRead > 0)
             {
-                rcvdText.Text = dataReaderObject.ReadString(bytesRead);
-                status.Text = "bytes read successfully!";
+                string readString = dataReaderObject.ReadString(bytesRead);
+                rcvdText.Text = readString;
+
+                //textBlock.SelectionStart = textBlock.Text.Length;
+
+                //status.Text = "bytes read successfully!";
+                //status.Text = readString.Length + " bytes read successfully! " + rcvdText.Text.Length;
             }            
         }
 
@@ -295,7 +309,7 @@ namespace SerialSample
 
             comPortInput.IsEnabled = true;
             sendTextButton.IsEnabled = false;            
-            rcvdText.Text = "";
+            //rcvdText.Text = "";
             listOfDevices.Clear();               
         }
 
@@ -320,6 +334,12 @@ namespace SerialSample
             {
                 status.Text = ex.Message;
             }          
-        }        
+        }
+        private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            rcvdText.FontSize = this.slider.Value;
+            
+            // this.textBox.Text = this.slider.Value.ToString();
+        }
     }
 }
