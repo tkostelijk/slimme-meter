@@ -85,10 +85,15 @@ namespace SerialSample
             DeviceInformation entry = (DeviceInformation)selection[0];
 
             // \\?\FTDIBUS#VID_0403+PID_6001+P11A5YWMA#0000#{86e0d1e0-8089-11d09ce4-08003e301f73}       
+            // string entryID = "\\\\?\\FTDIBUS#VID_0403+PID_6001+P11A5YWMA#0000#{86e0d1e0-8089-11d09ce4-08003e301f73}";
+
+            string entryID = entry.Id;
+
 
             try
-            {                
-                serialPort = await SerialDevice.FromIdAsync(entry.Id);
+            {
+                //serialPort = await SerialDevice.FromIdAsync(entry.Id);
+                serialPort = await SerialDevice.FromIdAsync(entryID);
 
                 // Disable the 'Connect' button 
                 comPortInput.IsEnabled = false;
@@ -252,7 +257,7 @@ namespace SerialSample
             Task<UInt32> loadAsyncTask;
 
             // uint ReadBufferLength = 589;
-            uint ReadBufferLength = 600;
+            uint ReadBufferLength = 768;
 
             // If task cancellation was requested, comply
             cancellationToken.ThrowIfCancellationRequested();
