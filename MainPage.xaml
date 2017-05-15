@@ -31,18 +31,18 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="1" x:Name="pageTitle" Text="UART Sample" Style="{StaticResource HeaderTextBlockStyle}" 
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="1" x:Name="pageTitle" Text="Slimme Meter" Style="{StaticResource HeaderTextBlockStyle}" 
                         IsHitTestVisible="false" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"/>
 
         <StackPanel Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0">
             <TextBlock Text="Select Device:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,0,0,0" Width="900" Height="80">
-            <ListBox x:Name="ConnectDevices" ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Visible" ItemsSource="{Binding Source={StaticResource DeviceListSource}}" Width="900" Height="80" Background="Aqua">
+        <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,0,0,0" Width="900" Height="100">
+            <ListBox x:Name="ConnectDevices" ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Visible" ItemsSource="{Binding Source={StaticResource DeviceListSource}}" Width="900" Height="100" Background="Aqua">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Id}" />
+                        <TextBlock Text="{Binding Name}" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -52,33 +52,31 @@
             <Button Name="comPortInput" Content="Connect" Click="comPortInput_Click" HorizontalAlignment="Right" />
             <Button Name="closeDevice" Margin="0,20,0,0" Content="Disconnect" Click="closeDevice_Click" HorizontalAlignment="Right"/>
         </StackPanel>
-
-        <StackPanel Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="70,10,0,0">
-            <TextBlock Text="Write Data:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+  
+        <StackPanel Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="5,0,0,0" Width="500" Height="100">
+            <TextBox Name="rcvdText" Width="500" Height="100" FontSize="40" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Center" Text="" />
         </StackPanel>
 
-        <StackPanel Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="00,0,0,0" Width="600" Height="40">
-            <TextBox Name="sendText" Width="600" Height="10"/>
+        <StackPanel Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="5,0,0,0" Width="500" Height="100">
+            <TextBox Name="Watts" Width="500" Height="100" FontSize="40" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Center" Text=""/>
         </StackPanel>
 
-        <StackPanel Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="30,0,0,0">
-            <Button Name="sendTextButton" Content="Write" Click="sendTextButton_Click"/>
+        <StackPanel Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,-10,0" Width="500" Height="100">
+            <TextBox Name="KostHour" Width="500" Height="100" FontSize="40" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Center" Text=""/>
+        </StackPanel>       
+        <StackPanel Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="5,0,0,0" Width="500" Height="100">
+            <TextBox Name="kiloWattHour" Width="500" Height="100" FontSize="40" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Center" Text=""/>
         </StackPanel>
-
-        <StackPanel Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="70,10,0,0">
-            <TextBlock Text="Read Data:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="5,0,0,0" Width="500" Height="200">
+            <TextBox Name="Gas" Width="500" Height="200" FontSize="40" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Center" Text=""/>
         </StackPanel>
-
-        <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="5,0,0,0" Width="500" Height="400">
-            <TextBox Name="rcvdText" Width="500" Height="400" FontSize="10" AcceptsReturn="True" TextWrapping="Wrap" Text="" />
-        </StackPanel>
-        <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Vertical" Margin="0,0,300,00" Width="100" Height="400">
-            <Slider x:Name="slider" HorizontalAlignment="Left" Margin="0,50,0,0" VerticalAlignment="Top" Width="100" MinHeight="300"  ValueChanged="slider_ValueChanged" Orientation="Vertical"/>
+        <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,-10,0" Width="500" Height="200">
+            <TextBox Name="GasUsage" Width="500" Height="200" FontSize="40" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Center" Text=""/>
         </StackPanel>
 
         <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="00,00,0,0" Width="1000" Height="80">
             <TextBox
-                x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Width="1000" Height="80" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Width="1000" Height="80" FontSize="10" HorizontalAlignment="Left" VerticalAlignment="Top" 
                 ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="White"/>
         </StackPanel>
 

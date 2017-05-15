@@ -19,17 +19,17 @@ namespace SerialSample
         /// Private variables
         /// </summary>
         private SerialDevice serialPort = null;
-        DataWriter dataWriteObject = null;
         DataReader dataReaderObject = null;
 
         private ObservableCollection<DeviceInformation> listOfDevices;
         private CancellationTokenSource ReadCancellationTokenSource;
-       
+        private Double OldGasVolume;
+        private DateTime OldGasTimeStamp;
+
         public MainPage()
         {
             this.InitializeComponent();            
             comPortInput.IsEnabled = false;
-            sendTextButton.IsEnabled = false;
             listOfDevices = new ObservableCollection<DeviceInformation>();
             ListAvailablePorts();
         }
@@ -124,85 +124,13 @@ namespace SerialSample
                 // Create cancellation token object to close I/O operations when closing the device
                 ReadCancellationTokenSource = new CancellationTokenSource();
 
-                // Enable 'WRITE' button to allow sending data
-                sendTextButton.IsEnabled = true;
-
+                
                 Listen();
             }
             catch (Exception ex)
             {
                 status.Text = ex.Message;
                 comPortInput.IsEnabled = true;
-                sendTextButton.IsEnabled = false;
-            }
-        }
-
-        /// <summary>
-        /// sendTextButton_Click: Action to take when 'WRITE' button is clicked
-        /// - Create a DataWriter object with the OutputStream of the SerialDevice
-        /// - Create an async task that performs the write operation
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void sendTextButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {                
-                if (serialPort != null)
-                {
-                    // Create the DataWriter object and attach to OutputStream
-                    dataWriteObject = new DataWriter(serialPort.OutputStream);
-
-                    //Launch the WriteAsync task to perform the write
-                    await WriteAsync();
-                }
-                else
-                {
-                    status.Text = "Select a device and connect";                
-                }
-            }
-            catch (Exception ex)
-            {
-                status.Text = "sendTextButton_Click: " + ex.Message;
-            }
-            finally
-            {
-                // Cleanup once complete
-                if (dataWriteObject != null)
-                {
-                    dataWriteObject.DetachStream();
-                    dataWriteObject = null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// WriteAsync: Task that asynchronously writes data from the input text box 'sendText' to the OutputStream 
-        /// </summary>
-        /// <returns></returns>
-        private async Task WriteAsync()
-        {
-            Task<UInt32> storeAsyncTask;
-
-            if (sendText.Text.Length != 0)
-            {
-                // Load the text from the sendText input text box to the dataWriter object
-                dataWriteObject.WriteString(sendText.Text);                
-
-                // Launch an async task to complete the write operation
-                storeAsyncTask = dataWriteObject.StoreAsync().AsTask();
-
-                UInt32 bytesWritten = await storeAsyncTask;
-                if (bytesWritten > 0)
-                {                    
-                    status.Text = sendText.Text + ", ";
-                    status.Text += "bytes written successfully!";
-                }
-                sendText.Text = "";
-            }
-            else
-            {
-                status.Text = "Enter the text you want to write and then click on 'WRITE'";
             }
         }
 
@@ -275,12 +203,26 @@ namespace SerialSample
             if (bytesRead > 0)
             {
                 string readString = dataReaderObject.ReadString(bytesRead);
-                rcvdText.Text = readString;
+                Telegram telegram = new Telegram(readString);
 
-                //textBlock.SelectionStart = textBlock.Text.Length;
+                if(OldGasVolume == 0)
+                {
+                    OldGasVolume = telegram.GasVolume;
+                    OldGasTimeStamp = telegram.GasTimeStamp;
+                }
+                
+                rcvdText.Text = telegram.TimeStamp.ToString();
+                Watts.Text = String.Format("{0} Watt",telegram.TotalKw * 1000);
+                KostHour.Text = String.Format("€ {0:N2}/uur", Math.Round(telegram.TotalKw * 0.1884,2));
+                kiloWattHour.Text = String.Format("{0:N3 kWh",telegram.kWh1 + telegram.kWh2);
+                Gas.Text = String.Format("{0}\r\n {1:N3} m3",telegram.GasTimeStamp,telegram.GasVolume);
 
-                //status.Text = "bytes read successfully!";
-                //status.Text = readString.Length + " bytes read successfully! " + rcvdText.Text.Length;
+                if (OldGasTimeStamp != telegram.GasTimeStamp)
+                {
+                    GasUsage.Text = String.Format("{0:N3} m3 in the last {1}\r\n€ {2:n2}", telegram.GasVolume - OldGasVolume, telegram.GasTimeStamp - OldGasTimeStamp,(telegram.GasVolume - OldGasVolume)* 0.67329);
+                    OldGasTimeStamp = telegram.GasTimeStamp;
+                    OldGasVolume = telegram.GasVolume;
+                }
             }            
         }
 
@@ -313,7 +255,6 @@ namespace SerialSample
             serialPort = null;
 
             comPortInput.IsEnabled = true;
-            sendTextButton.IsEnabled = false;            
             //rcvdText.Text = "";
             listOfDevices.Clear();               
         }
@@ -339,12 +280,6 @@ namespace SerialSample
             {
                 status.Text = ex.Message;
             }          
-        }
-        private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        {
-            rcvdText.FontSize = this.slider.Value;
-            
-            // this.textBox.Text = this.slider.Value.ToString();
         }
     }
 }
