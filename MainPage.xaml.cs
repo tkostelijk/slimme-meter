@@ -157,7 +157,7 @@ namespace SerialSample
             }
             catch (TaskCanceledException tce) 
             {
-                status.Text = "Reading task was cancelled, closing device and cleaning up";
+                status.Text = "Reading task was cancelled, closing device and cleaning up " + tce.Message;
                 CloseDevice();            
             }
             catch (Exception ex)
