@@ -248,7 +248,7 @@ namespace SerialSample
                                 kwh2 = Utils.GetkWh(telegramLine);
                                 break;
                             case "0-0:96.14.0":
-                                kwh1 = Utils.GetNumber4(telegramLine);
+                                tarrif = Utils.GetNumber4(telegramLine);
                                 break;
                             case "1-0:1.7.0":
                                 kw1 = Utils.GetkW(telegramLine);

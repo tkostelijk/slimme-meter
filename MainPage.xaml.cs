@@ -32,6 +32,7 @@ namespace SerialSample
             comPortInput.IsEnabled = false;
             listOfDevices = new ObservableCollection<DeviceInformation>();
             ListAvailablePorts();
+            StartWithFixedID();
         }
 
         /// <summary>
@@ -134,6 +135,72 @@ namespace SerialSample
             }
         }
 
+        private async void StartWithFixedID()
+        {
+            var selection = ConnectDevices.SelectedItems;
+
+            //        if (selection.Count <= 0)
+            //        {
+            //            status.Text = "Select a device and connect";
+            //            return;
+            //        }
+
+            //        DeviceInformation entry = (DeviceInformation)selection[0];
+
+          
+            // \\?\FTDIBUS#VID_0403+PID_6001+P11A5YWMA#0000#{86e0d1e0-8089-11d0-9ce4-08003e301f73}
+            string entryID = "\\\\?\\FTDIBUS#VID_0403+PID_6001+P11A5YWMA#0000#{86e0d1e0-8089-11d0-9ce4-08003e301f73}";
+
+            //string entryID = entry.Id;
+
+
+            try
+            {
+                //serialPort = await SerialDevice.FromIdAsync(entry.Id);
+                serialPort = await SerialDevice.FromIdAsync(entryID);
+
+                // Disable the 'Connect' button 
+                comPortInput.IsEnabled = false;
+
+                // Configure serial settings
+                serialPort.WriteTimeout = TimeSpan.FromMilliseconds(500);
+                serialPort.ReadTimeout = TimeSpan.FromMilliseconds(500);
+                serialPort.BaudRate = 115200;
+                serialPort.Parity = SerialParity.None;
+                serialPort.StopBits = SerialStopBitCount.One;
+                serialPort.DataBits = 8;
+                serialPort.Handshake = SerialHandshake.XOnXOff;
+
+                // Display configured settings
+                status.Text = "Serial port ";
+       //         status.Text += entry.Id;
+                status.Text += " configured successfully: ";
+                status.Text += serialPort.BaudRate + "-";
+                status.Text += serialPort.DataBits + "-";
+                status.Text += serialPort.Parity.ToString() + "-";
+                status.Text += serialPort.StopBits + "-";
+                status.Text += serialPort.Handshake; // Maybe .TosTring() is needed.
+
+                // Set the RcvdText field to invoke the TextChanged callback
+                // The callback launches an async Read task to wait for data
+                //status.Text = "Waiting for data...";
+
+                // Create cancellation token object to close I/O operations when closing the device
+                ReadCancellationTokenSource = new CancellationTokenSource();
+
+
+                Listen();
+            }
+            catch (Exception ex)
+            {
+                status.Text = ex.Message;
+                comPortInput.IsEnabled = true;
+            }
+        }
+
+
+
+
         /// <summary>
         /// - Create a DataReader object
         /// - Create an async task to read from the SerialDevice InputStream
@@ -213,13 +280,13 @@ namespace SerialSample
                 
                 rcvdText.Text = telegram.TimeStamp.ToString();
                 Watts.Text = String.Format("{0} Watt",telegram.TotalKw * 1000);
-                KostHour.Text = String.Format("€ {0:N2}/uur", Math.Round(telegram.TotalKw * 0.1884,2));
-                kiloWattHour.Text = String.Format("{0:N3 kWh",telegram.kWh1 + telegram.kWh2);
+                KostHour.Text = String.Format("€ {0:N2}/uur", Math.Round(telegram.TotalKw * 0.21733,2));
+                kiloWattHour.Text = String.Format("{0:N3} kWh",telegram.kWh1 + telegram.kWh2);
                 Gas.Text = String.Format("{0}\r\n {1:N3} m3",telegram.GasTimeStamp,telegram.GasVolume);
 
                 if (OldGasTimeStamp != telegram.GasTimeStamp)
                 {
-                    GasUsage.Text = String.Format("{0:N3} m3 in the last {1}\r\n€ {2:n2}", telegram.GasVolume - OldGasVolume, telegram.GasTimeStamp - OldGasTimeStamp,(telegram.GasVolume - OldGasVolume)* 0.67329);
+                    GasUsage.Text = String.Format("{0:N3} m3 in the last {1}\r\n€ {2:n2}", telegram.GasVolume - OldGasVolume, telegram.GasTimeStamp - OldGasTimeStamp,(telegram.GasVolume - OldGasVolume)* 0.72113);
                     OldGasTimeStamp = telegram.GasTimeStamp;
                     OldGasVolume = telegram.GasVolume;
                 }

@@ -13,7 +13,7 @@
         <CollectionViewSource x:Name="DeviceListSource"/>
     </Page.Resources>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RenderTransformOrigin="0.487,0.54">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
@@ -49,7 +49,7 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Vertical" Margin="60,0,0,0" Height="84" Width="90">
-            <Button Name="comPortInput" Content="Connect" Click="comPortInput_Click" HorizontalAlignment="Right" />
+            <Button Name="comPortInput" Content="Connect" Click="comPortInput_Click" HorizontalAlignment="Right" Width="90" />
             <Button Name="closeDevice" Margin="0,20,0,0" Content="Disconnect" Click="closeDevice_Click" HorizontalAlignment="Right"/>
         </StackPanel>
   
