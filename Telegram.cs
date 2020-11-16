@@ -286,7 +286,7 @@ namespace SerialSample
                                 gasvolume = Utils.GetGasVolume(telegramLine);
                                 break;
                             default:
-                                // no match
+                                // no match.
                                 break;
                         }
                     }
