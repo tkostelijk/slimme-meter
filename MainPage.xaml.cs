@@ -10,6 +10,7 @@ using Windows.Devices.SerialCommunication;
 using Windows.Storage.Streams;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SerialSample
 {    
@@ -25,10 +26,12 @@ namespace SerialSample
         private CancellationTokenSource ReadCancellationTokenSource;
         private Double OldGasVolume;
         private DateTime OldGasTimeStamp;
+        private AzureIoTHubService _azureIoTHubService;
 
         public MainPage()
         {
-            this.InitializeComponent();            
+            this.InitializeComponent();
+            _azureIoTHubService = new AzureIoTHubService();
             comPortInput.IsEnabled = false;
             listOfDevices = new ObservableCollection<DeviceInformation>();
             ListAvailablePorts();
@@ -290,6 +293,10 @@ namespace SerialSample
                     OldGasTimeStamp = telegram.GasTimeStamp;
                     OldGasVolume = telegram.GasVolume;
                 }
+                // Send Telegram info to IoT hub
+                var jsonTelegram = JsonConvert.SerializeObject(telegram);
+                await _azureIoTHubService.SendDataToAzure(jsonTelegram);
+
             }            
         }
 
